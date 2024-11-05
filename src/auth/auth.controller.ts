@@ -23,7 +23,7 @@ export class AuthController {
 
   @UseGuards(AuthGuard)
   @Get('profile')
-  getProfile(@Request() req) {
+  getProfile(@Request() req: { user: string }) {
     return req.user;
   }
 }
