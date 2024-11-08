@@ -42,9 +42,7 @@ lerna-debug.log*
 .env.production.local
 .env.local
 
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
+
 # parcel-bundler cache (https://parceljs.org/)
 .cache
 .parcel-cache
@@ -94,9 +92,6 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
-=======
->>>>>>> a93e271 (chore(.gitignore): udpdate some lines)
-# temp directory
 .temp
 .tmp
 
@@ -106,9 +101,4 @@ pids
 *.seed
 *.pid.lock
 
-# Diagnostic reports (https://nodejs.org/api/report.html)
-report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
-<<<<<<< HEAD
-=======
->>>>>>> feat/implement-authentication
->>>>>>> a93e271 (chore(.gitignore): udpdate some lines)
+
