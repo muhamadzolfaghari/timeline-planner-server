@@ -6,12 +6,9 @@ import { UsersService } from './users/users.service';
 import { UsersModule } from './users/users.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { UsersModule } from './users/users.module';
 
 @Module({
   imports: [
-    AuthModule,
-    UsersModule,
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: '.env',
@@ -32,6 +29,8 @@ import { UsersModule } from './users/users.module';
         },
       }),
     }),
+    UsersModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService, UsersService],
