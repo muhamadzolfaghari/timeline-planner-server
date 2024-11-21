@@ -10,15 +10,25 @@ import {
 } from '@nestjs/common';
 import { AuthGuard } from './auth.guard';
 import { AuthService } from './auth.service';
+import { SignInDto } from './dto/sign-in.dto';
+import { SignUpDto } from './dto/sign-up.dto';
 
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
 
   @HttpCode(HttpStatus.OK)
-  @Post('login')
-  signIn(@Body() signInDto: Record<string, any>) {
+  @Post('sign-in')
+  signIn(@Body() signInDto: SignInDto) {
     return this.authService.signIn(signInDto.username, signInDto.password);
+  }
+
+  @Post('sign-up')
+  signUp(@Body() signUpDto: SignUpDto) {
+    console.log(signUpDto);
+    this.authService.signUp(signUpDto);
+
+    return 'This action adds a new cat';
   }
 
   @UseGuards(AuthGuard)
