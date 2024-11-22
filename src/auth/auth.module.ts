@@ -4,9 +4,12 @@ import { AuthService } from './auth.service';
 import { UsersModule } from 'src/users/users.module';
 import { JwtModule } from '@nestjs/jwt';
 import { jwtConstants } from './constants';
+import { GoogleStrategy } from './strategies/google.strategy';
+import { PassportModule } from '@nestjs/passport';
 
 @Module({
   imports: [
+    PassportModule,
     UsersModule,
     JwtModule.register({
       global: true,
@@ -15,6 +18,7 @@ import { jwtConstants } from './constants';
     }),
   ],
   providers: [
+    GoogleStrategy,
     AuthService,
     // {
     //   provide: 'APP_GUARD',

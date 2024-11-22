@@ -19,6 +19,26 @@ export class AuthService {
 
   signUp(signUpDto: SignUpDto) {}
 
+  async validateGoogleUser(user: any) {
+    /**
+     * 
+     * const existingUser = await this.userRepository.findOne({ email: user.email });
+    if (existingUser) return existingUser;
+
+    // Create a new user if they don't exist
+    const newUser = this.userRepository.create({
+      firstName: user.firstName,
+      lastName: user.lastName,
+      email: user.email,
+      photo: user.photo,
+    });
+    return this.userRepository.save(newUser);
+     * 
+     */
+
+    return user;
+  }
+
   async signIn(
     username: string,
     pass: string,
@@ -29,7 +49,7 @@ export class AuthService {
       throw new UnauthorizedException();
     }
 
-    const payload = { sub: user.id, username: user.name };
+    const payload = { sub: user.id, username: user.username };
 
     return {
       access_token: await this.jwsService.signAsync(payload),

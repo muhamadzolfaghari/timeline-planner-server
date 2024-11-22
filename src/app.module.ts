@@ -12,7 +12,7 @@ import { SessionModule } from './session/session.module';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: '.env',
+      // envFilePath: '.env',
     }),
     TypeOrmModule.forRootAsync({
       inject: [ConfigService],
@@ -23,11 +23,10 @@ import { SessionModule } from './session/session.module';
         username: configService.get<string>('POSTGRES_USER'),
         password: configService.get<string>('POSTGRES_PASSWORD'),
         database: configService.get<string>('POSTGRES_DATABASE'),
-        // entities: [__dirname + '/../**/*.entity{.ts,.js}'], // Ensure `User` is included
         autoLoadEntities: true,
         synchronize: true,
         ssl: {
-          rejectUnauthorized: false, // Use this only for development; ensure proper certificates for production
+          rejectUnauthorized: false,
         },
       }),
     }),
