@@ -17,3 +17,15 @@ fetch('auth/login', {
     });
   });
 });
+
+fetch('/sign-up', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+  },
+  body: JSON.stringify({
+    name: 'John Doe',
+    email: 'john@example.com',
+    password: 'password123',
+  }),
+});
