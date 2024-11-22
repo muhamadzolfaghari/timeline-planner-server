@@ -5,6 +5,8 @@ import { UsersModule } from './users/users.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AuthModule } from './auth/auth.module';
+import { SessionController } from './session/session.controller';
+import { SessionModule } from './session/session.module';
 
 @Module({
   imports: [
@@ -31,8 +33,9 @@ import { AuthModule } from './auth/auth.module';
     }),
     UsersModule,
     AuthModule,
+    SessionModule,
   ],
-  controllers: [AppController],
+  controllers: [AppController, SessionController],
   providers: [AppService],
 })
 export class AppModule {}
