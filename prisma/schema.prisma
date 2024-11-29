@@ -22,7 +22,7 @@ model User {
   password       String?
   photo          String?
   telegramId     String?   @unique
-  isEmailVerified Boolean   @default(false)
+  isEmailVerified Boolean  @default(false)
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
 

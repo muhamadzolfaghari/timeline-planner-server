@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 import { User } from './entities/user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { v4 as uuid } from 'uuid';
 
 @Injectable()
 export class UsersService {
@@ -13,6 +14,10 @@ export class UsersService {
   ) {}
 
   create(createUserDto: CreateUserDto): Promise<User> {
+    if (!createUserDto.username) {
+      createUserDto.username = uuid();
+    }
+
     const user = this.userRepository.create(createUserDto);
     return this.userRepository.save(user);
   }
@@ -25,13 +30,17 @@ export class UsersService {
     return this.userRepository.findOne({ where: { firstName: name } });
   }
 
-  findOne(id: string): Promise<User> {
-    return this.userRepository.findOne({ where: { id } });
+  findOneByEmail(email: string): Promise<User> {
+    return this.userRepository.findOne({ where: { email } });
+  }
+
+  findOne(user: Partial<User>): Promise<User> {
+    return this.userRepository.findOne({ where: user });
   }
 
   async update(id: string, updateUserDto: UpdateUserDto): Promise<User> {
     await this.userRepository.update(id, updateUserDto);
-    return this.findOne(id);
+    return this.findOne({ id });
   }
 
   async remove(id: string): Promise<void> {

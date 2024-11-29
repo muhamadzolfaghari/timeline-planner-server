@@ -3,6 +3,7 @@ import {
   Controller,
   Get,
   HttpCode,
+  HttpException,
   HttpStatus,
   Post,
   Request,
@@ -13,6 +14,7 @@ import { AuthService } from './auth.service';
 import { SignInDto } from './dto/sign-in.dto';
 import { SignUpDto } from './dto/sign-up.dto';
 import { AuthGuard as PassportAuthGuard } from '@nestjs/passport';
+import { GetProfileDto } from './dto/get-profile';
 
 @Controller('auth')
 export class AuthController {
@@ -26,7 +28,7 @@ export class AuthController {
 
   @Post('sign-up')
   signUp(@Body() signUpDto: SignUpDto) {
-    console.log(signUpDto);
+    // console.log(signUpDto);
     this.authService.signUp(signUpDto);
 
     return 'This action adds a new cat';
@@ -34,8 +36,14 @@ export class AuthController {
 
   @UseGuards(AuthGuard)
   @Get('profile')
-  getProfile(@Request() req: { user: string }) {
-    return req.user;
+  getProfile(@Request() getProfileDto: GetProfileDto) {
+    const user = this.authService.getProfile(getProfileDto.username);
+
+    if (!user) {
+      throw new HttpException('Invalid credentials', HttpStatus.UNAUTHORIZED);
+    }
+
+    return user;
   }
 
   @Get('google')
@@ -45,6 +53,14 @@ export class AuthController {
   @Get('google/redirect')
   @UseGuards(PassportAuthGuard('google'))
   async googleRedirect(@Request() req) {
-    return req.user;
+    const token = await this.authService.afterGoogleRedirect(req.user);
+
+    if (!token) {
+      throw new HttpException('Invalid credentials', HttpStatus.UNAUTHORIZED);
+    }
+
+    return {
+      access_token: token,
+    };
   }
 }

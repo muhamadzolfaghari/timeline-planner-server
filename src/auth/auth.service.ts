@@ -2,6 +2,9 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UsersService } from 'src/users/users.service';
 import { SignUpDto } from './dto/sign-up.dto';
+import { GoogleUserProfile } from './types/google-profile.type';
+import { v4 as uuid } from 'uuid';
+import { UserClient } from 'src/users/types/UserClient';
 
 @Injectable()
 export class AuthService {
@@ -17,26 +20,48 @@ export class AuthService {
     // usersService.findAll().then((users) => console.log(users));
   }
 
+  async getProfile(username: string): Promise<UserClient | undefined> {
+    try {
+      const user = await this.usersService.findOne({ username });
+      const {
+        password,
+        createdAt,
+        updatedAt,
+        sessions,
+        id,
+        ...userWithOutMetadata
+      } = user;
+
+      return userWithOutMetadata;
+    } catch (error) {
+      console.error('Error in getUser:', error);
+    } finally {
+      return undefined;
+    }
+  }
+
   signUp(signUpDto: SignUpDto) {}
 
-  async validateGoogleUser(user: any) {
-    /**
-     * 
-     * const existingUser = await this.userRepository.findOne({ email: user.email });
-    if (existingUser) return existingUser;
+  async afterGoogleRedirect(
+    googleUser: GoogleUserProfile,
+  ): Promise<string | undefined> {
+    try {
+      let user = await this.usersService.findOne({ email: googleUser.email });
 
-    // Create a new user if they don't exist
-    const newUser = this.userRepository.create({
-      firstName: user.firstName,
-      lastName: user.lastName,
-      email: user.email,
-      photo: user.photo,
-    });
-    return this.userRepository.save(newUser);
-     * 
-     */
+      if (!user) {
+        user = await this.usersService.create({ ...googleUser });
+      }
 
-    return user;
+      const token = await this.jwsService.signAsync({
+        username: user.username,
+      });
+
+      return token;
+    } catch (error) {
+      console.error('Error in afterGoogleRedirect:', error);
+    } finally {
+      return undefined;
+    }
   }
 
   async signIn(
