@@ -14,7 +14,8 @@ import { AuthService } from './auth.service';
 import { SignInDto } from './dto/sign-in.dto';
 import { SignUpDto } from './dto/sign-up.dto';
 import { AuthGuard as PassportAuthGuard } from '@nestjs/passport';
-import { GetProfileDto } from './dto/get-profile';
+import { GetProfileDto } from './dto/get-profile.dto';
+import { GoogleRedirectDto } from './dto/google-redirect.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -37,13 +38,7 @@ export class AuthController {
   @UseGuards(AuthGuard)
   @Get('profile')
   getProfile(@Request() getProfileDto: GetProfileDto) {
-    const user = this.authService.getProfile(getProfileDto.username);
-
-    if (!user) {
-      throw new HttpException('Invalid credentials', HttpStatus.UNAUTHORIZED);
-    }
-
-    return user;
+    return this.authService.getProfile(getProfileDto.user.username);
   }
 
   @Get('google')
@@ -52,15 +47,7 @@ export class AuthController {
 
   @Get('google/redirect')
   @UseGuards(PassportAuthGuard('google'))
-  async googleRedirect(@Request() req) {
-    const token = await this.authService.afterGoogleRedirect(req.user);
-
-    if (!token) {
-      throw new HttpException('Invalid credentials', HttpStatus.UNAUTHORIZED);
-    }
-
-    return {
-      access_token: token,
-    };
+  async googleRedirect(@Request() req: GoogleRedirectDto) {
+    return this.authService.googleRedirect(req.user);
   }
 }

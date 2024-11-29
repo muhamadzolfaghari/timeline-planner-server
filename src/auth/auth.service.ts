@@ -5,6 +5,8 @@ import { SignUpDto } from './dto/sign-up.dto';
 import { GoogleUserProfile } from './types/google-profile.type';
 import { v4 as uuid } from 'uuid';
 import { UserClient } from 'src/users/types/UserClient';
+import { User } from 'src/users/entities/user.entity';
+import { AuthToken } from 'src/users/types/AuthToken';
 
 @Injectable()
 export class AuthService {
@@ -20,31 +22,33 @@ export class AuthService {
     // usersService.findAll().then((users) => console.log(users));
   }
 
-  async getProfile(username: string): Promise<UserClient | undefined> {
+  async getProfile(username: string): Promise<UserClient> {
+    if (!username) {
+      throw new UnauthorizedException('Username is required');
+    }
+
     try {
       const user = await this.usersService.findOne({ username });
-      const {
-        password,
-        createdAt,
-        updatedAt,
-        sessions,
-        id,
-        ...userWithOutMetadata
-      } = user;
 
-      return userWithOutMetadata;
+      if (!user) {
+        throw new UnauthorizedException('User not found');
+      }
+
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { password, createdAt, updatedAt, sessions, id, ...userClient } =
+        user;
+      return userClient;
     } catch (error) {
-      console.error('Error in getUser:', error);
-    } finally {
-      return undefined;
+      console.error('Error in getProfile:', error);
+      throw new UnauthorizedException('Failed to retrieve user profile');
     }
   }
 
   signUp(signUpDto: SignUpDto) {}
 
-  async afterGoogleRedirect(
+  async googleRedirect(
     googleUser: GoogleUserProfile,
-  ): Promise<string | undefined> {
+  ): Promise<AuthToken | undefined> {
     try {
       let user = await this.usersService.findOne({ email: googleUser.email });
 
@@ -52,15 +56,10 @@ export class AuthService {
         user = await this.usersService.create({ ...googleUser });
       }
 
-      const token = await this.jwsService.signAsync({
-        username: user.username,
-      });
-
-      return token;
+      return this.generateToken(user);
     } catch (error) {
       console.error('Error in afterGoogleRedirect:', error);
-    } finally {
-      return undefined;
+      throw new UnauthorizedException('Failed to generate auth token');
     }
   }
 
@@ -74,13 +73,21 @@ export class AuthService {
       throw new UnauthorizedException();
     }
 
-    const payload = { sub: user.id, username: user.username };
+    return this.generateToken(user);
+  }
 
-    return {
-      access_token: await this.jwsService.signAsync(payload),
-      // refresh_token: await this.jwsService.signAsync(payload, {
-      //   expiresIn: '7d',
-      // }),
-    };
+  async generateToken(user: User): Promise<AuthToken | undefined> {
+    try {
+      const payload = { sub: user.id, username: user.username };
+
+      return {
+        access_token: await this.jwsService.signAsync(payload),
+        refresh_token: await this.jwsService.signAsync(payload, {
+          expiresIn: '7d',
+        }),
+      };
+    } catch (error) {
+      console.error('Error in signJwt:', error);
+    }
   }
 }
