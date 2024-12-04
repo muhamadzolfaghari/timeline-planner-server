@@ -102,3 +102,4 @@ pids
 *.pid.lock
 
 
+.vercel
